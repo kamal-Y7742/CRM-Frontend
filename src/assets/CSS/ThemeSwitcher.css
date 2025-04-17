@@ -1,0 +1,257 @@
+/* ThemeSwitcher.css */
+:root {
+    --header-bg-color: #ffffff;
+    --button-bg-color: #007bff;
+  }
+  
+  /* Apply theme colors to components */
+  .sidebar {
+    background-color: var(--sidebar-bg-color);
+    transition: background-color 0.3s ease;
+  }
+  
+  .dashboard-header {
+    background-color: var(--header-bg-color);
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-primary {
+    background-color: var(--button-bg-color);
+    border-color: var(--button-bg-color);
+  }
+  
+  /* Theme Switcher Button */
+  .theme-toggle-btn {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--button-bg-color);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1030;
+    transition: transform 0.2s ease;
+  }
+  
+  .theme-toggle-btn:hover {
+    transform: scale(1.05);
+  }
+  
+  .theme-toggle-btn i {
+    font-size: 1.5rem;
+  }
+  
+  /* Theme Customizer Offcanvas */
+  #themeCustomizer {
+    width: 320px;
+    max-width: 100%;
+  }
+  
+  /* Responsive offcanvas width */
+  @media (max-width: 576px) {
+    #themeCustomizer {
+      width: 100%;
+    }
+  }
+  
+  .theme-section {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .theme-section:last-child {
+    border-bottom: none;
+  }
+  
+  .theme-section h6 {
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  
+  /* Layout Options */
+  .layout-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  /* Make layout options responsive */
+  @media (max-width: 360px) {
+    .layout-options {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .layout-option {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+  
+  .layout-option:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .layout-option.active {
+    background-color: rgba(0, 123, 255, 0.1);
+    border: 1px solid var(--button-bg-color);
+  }
+  
+  .layout-preview {
+    width: 100%;
+    height: 80px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ddd;
+  }
+  
+  .preview-dots {
+    height: 16px;
+    background-color: #f5f5f5;
+    padding: 4px;
+    display: flex;
+    gap: 4px;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ccc;
+  }
+  
+  .dot.red { background-color: #ff5f57; }
+  .dot.yellow { background-color: #ffbd2e; }
+  .dot.green { background-color: #28c941; }
+  
+  .preview-content {
+    height: calc(100% - 16px);
+  }
+  
+  /* Preview themes */
+  .light-preview {
+    background-color: #fff;
+    color: #333;
+  }
+  
+  .dark-preview {
+    background-color: #1a1d21;
+    color: #fff;
+  }
+  
+  .system-preview {
+    background-color: #fff;
+  }
+  
+  .system-preview .system-dark {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    right: 0;
+    background-color: #1a1d21;
+  }
+  
+  .bw-preview {
+    background-color: #fff;
+    filter: grayscale(100%);
+  }
+  
+  /* Color Picker */
+  .color-picker {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  .form-control-color {
+    width: 60px;
+    height: 40px;
+    padding: 2px;
+  }
+  
+  /* Layout Mode Classes (applied to body) */
+  body.layout-light {
+    background-color: #f8f9fa;
+    color: #212529;
+  }
+  
+  body.layout-dark {
+    background-color: #1a1d21;
+    color: #e9ecef;
+  }
+  
+
+  
+  body.layout-bw {
+    filter: grayscale(100%);
+  }
+  
+  /* System preference handling */
+  @media (prefers-color-scheme: dark) {
+    body.layout-system {
+      background-color: #1a1d21;
+      color: #e9ecef;
+    }
+  }
+  
+  @media (prefers-color-scheme: light) {
+    body.layout-system {
+      background-color: #f8f9fa;
+      color: #212529;
+    }
+  }
+  
+  /* Responsive Enhancements */
+  @media (max-width: 767px) {
+    .theme-section {
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+    }
+    
+    .theme-toggle-btn {
+      width: 45px;
+      height: 45px;
+      right: 15px;
+      bottom: 15px;
+    }
+    
+    .theme-toggle-btn i {
+      font-size: 1.25rem;
+    }
+  }
+  
+  /* Style adjustments for dark theme */
+  body.layout-dark #themeCustomizer {
+    background-color: #2a2d31;
+    color: #e9ecef;
+  }
+
+  
+  body.layout-dark .theme-section {
+    border-bottom: 1px solid #444;
+  }
+  
+  body.layout-dark .layout-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  body.layout-dark .layout-option.active {
+    background-color: rgba(0, 123, 255, 0.2);
+  }
+  
+  body.layout-dark .btn-outline-secondary {
+    color: #e9ecef;
+    border-color: #6c757d;
+  }
