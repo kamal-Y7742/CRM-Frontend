@@ -3,12 +3,12 @@ import "../assets/CSS/DataTable.css";
 import "../assets/CSS/Sidebar.css";
 
 const DataTable = ({
-  // Support both structures: tabbed data (inbox/archive) or single data array
   inboxData = [],
   archiveData = [],
   inboxColumns = null,
+  customHeaderLeft =true,
   archiveColumns = null,
-  columns = null, // For backward compatibility with other pages
+  columns = null,
   title = "",
   itemsPerPageOptions = [5, 10, 25, 50],
   defaultItemsPerPage = 10,
@@ -37,7 +37,6 @@ const DataTable = ({
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [activeDatePreset, setActiveDatePreset] = useState(null);
 
-  
   // Determine if we're in tabbed mode (inbox/archive) or single table mode
   const isTabbed = inboxColumns !== null && archiveColumns !== null;
   
@@ -575,22 +574,9 @@ const DataTable = ({
         </div>
         <div className="header-controls header-row-1">
           <div className="left-controls">
-          {!hideToggle && (
-  <div className="toggle-container">
-    <button
-      onClick={() => setActiveView("inbox")}
-      className={`toggle-button left ${activeView === "inbox" ? "active" : ""}`}
-    >
-      <i className="bi bi-inbox"></i> Inbox
-    </button>
-    <button
-      onClick={() => setActiveView("archive")}
-      className={`toggle-button right ${activeView === "archive" ? "active" : ""}`}
-    >
-      <i className="bi bi-archive"></i> Archive
-    </button>
-  </div>
-)}
+                <div className="left-controls">
+  {customHeaderLeft && <div className="custom-header-left">{customHeaderLeft}</div>}
+</div>
           </div>
 
           <div className="right-controls">

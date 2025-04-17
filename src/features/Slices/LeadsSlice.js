@@ -9,10 +9,9 @@ export const fetchLeads = createAsyncThunk(
     try {
       const res = await API.get('/leads/get', { params });
       return {
-        inbox: params.isArchived ? [] : res.data.leads.filter(lead => !lead.isArchived),
-        archive: params.isArchived ? res.data.leads.filter(lead => lead.isArchived) : [],
-        total: res.data.totalRecords,
-        pages: res.data.totalPages,
+        leads: res.data.leads, // Just return the filtered leads from backend
+        totalRecords: res.data.totalRecords,
+        totalPages: res.data.totalPages,
         currentPage: res.data.currentPage
       };
     } catch (err) {
@@ -20,6 +19,7 @@ export const fetchLeads = createAsyncThunk(
     }
   }
 );
+
 export const addLead = createAsyncThunk(
   'leads/addLead',
   async (leadData, { rejectWithValue }) => {
@@ -89,21 +89,18 @@ export const restoreLead = createAsyncThunk(
     }
   }
 );
-
 const initialState = {
-  leads: {
-    inbox: [],     
-    archive: [],     
-    total: 0,
-    pages: 0,
-    currentPage: 1
-  },
+  leads: [], // Now stores only the current view's leads
+  total: 0,
+  pages: 0,
+  currentPage: 1,
   status: 'idle',
   error: null,
   isModalOpen: false,
   currentLead: null,
   operationStatus: 'idle',
   operationError: null,
+  currentView: 'inbox', // Track current view
 };
 
 const leadsSlice = createSlice({
@@ -118,6 +115,9 @@ const leadsSlice = createSlice({
       state.isModalOpen = false;
       state.currentLead = null;
     },
+    setCurrentView: (state, action) => {
+      state.currentView = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -127,14 +127,10 @@ const leadsSlice = createSlice({
       })
       .addCase(fetchLeads.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.leads = {
-          ...state.leads,
-          inbox: action.payload.inbox,
-          archive: action.payload.archive,
-          total: action.payload.total,
-          pages: action.payload.pages,
-          currentPage: action.payload.currentPage
-        };
+        state.leads = action.payload.leads;
+        state.total = action.payload.totalRecords;
+        state.pages = action.payload.totalPages;
+        state.currentPage = action.payload.currentPage;
       })
       .addCase(fetchLeads.rejected, (state, action) => {
         state.status = 'failed';
@@ -147,16 +143,15 @@ const leadsSlice = createSlice({
       })
       .addCase(addLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        // Add the new lead to the inbox
-        state.leads.inbox = [action.payload, ...state.leads.inbox];
-        state.leads.total += 1;
+        if (state.currentView === 'inbox') {
+          state.leads = [action.payload, ...state.leads];
+          state.total += 1;
+        }
         state.isModalOpen = false;
         state.currentLead = null;
       })
-      .addCase(addLead.rejected, (state, action) => {
-        state.operationStatus = 'failed';
-        state.operationError = action.payload;
-      })
+
+      
       
       // Update Lead
       .addCase(updateLead.pending, (state) => {
@@ -164,33 +159,16 @@ const leadsSlice = createSlice({
       })
       .addCase(updateLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        // Update the lead in either inbox or archive
         const { id } = action.payload;
-        
-        const inboxIndex = state.leads.inbox.findIndex(lead => lead.id === id);
-        if (inboxIndex !== -1) {
-          state.leads.inbox[inboxIndex] = {
-            ...state.leads.inbox[inboxIndex],
+        const index = state.leads.findIndex(lead => lead.id === id);
+        if (index !== -1) {
+          state.leads[index] = {
+            ...state.leads[index],
             ...action.payload,
-            mode: "modified"
           };
-        } else {
-          const archiveIndex = state.leads.archive.findIndex(lead => lead.id === id);
-          if (archiveIndex !== -1) {
-            state.leads.archive[archiveIndex] = {
-              ...state.leads.archive[archiveIndex],
-              ...action.payload,
-              mode: "modified"
-            };
-          }
         }
-        
         state.isModalOpen = false;
         state.currentLead = null;
-      })
-      .addCase(updateLead.rejected, (state, action) => {
-        state.operationStatus = 'failed';
-        state.operationError = action.payload;
       })
       
       // Delete Lead
@@ -199,14 +177,8 @@ const leadsSlice = createSlice({
       })
       .addCase(deleteLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        // Remove the lead from both inbox and archive
-        state.leads.inbox = state.leads.inbox.filter(lead => lead.id !== action.payload);
-        state.leads.archive = state.leads.archive.filter(lead => lead.id !== action.payload);
-        state.leads.total = Math.max(0, state.leads.total - 1);
-      })
-      .addCase(deleteLead.rejected, (state, action) => {
-        state.operationStatus = 'failed';
-        state.operationError = action.payload;
+        state.leads = state.leads.filter(lead => lead.id !== action.payload);
+        state.total = Math.max(0, state.total - 1);
       })
       
       // Archive Lead
@@ -215,16 +187,10 @@ const leadsSlice = createSlice({
       })
       .addCase(archiveLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        // Move the lead from inbox to archive
-        const leadToArchive = state.leads.inbox.find(lead => lead.id === action.payload);
-        if (leadToArchive) {
-          state.leads.inbox = state.leads.inbox.filter(lead => lead.id !== action.payload);
-          state.leads.archive = [leadToArchive, ...state.leads.archive];
+        // Remove from current view (if in inbox)
+        if (state.currentView === 'inbox') {
+          state.leads = state.leads.filter(lead => lead.id !== action.payload);
         }
-      })
-      .addCase(archiveLead.rejected, (state, action) => {
-        state.operationStatus = 'failed';
-        state.operationError = action.payload;
       })
       
       // Restore Lead
@@ -233,19 +199,13 @@ const leadsSlice = createSlice({
       })
       .addCase(restoreLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        // Move the lead from archive to inbox
-        const leadToRestore = state.leads.archive.find(lead => lead.id === action.payload);
-        if (leadToRestore) {
-          state.leads.archive = state.leads.archive.filter(lead => lead.id !== action.payload);
-          state.leads.inbox = [leadToRestore, ...state.leads.inbox];
+        // Remove from current view (if in archive)
+        if (state.currentView === 'archive') {
+          state.leads = state.leads.filter(lead => lead.id !== action.payload);
         }
-      })
-      .addCase(restoreLead.rejected, (state, action) => {
-        state.operationStatus = 'failed';
-        state.operationError = action.payload;
       });
   }
 });
 
-export const { openLeadModal, closeLeadModal } = leadsSlice.actions;
+export const { openLeadModal, closeLeadModal, setCurrentView } = leadsSlice.actions;
 export default leadsSlice.reducer;
