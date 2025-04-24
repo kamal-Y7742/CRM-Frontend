@@ -1,101 +1,97 @@
-import React, { useState } from "react";
-import DataTable from "../Component/DataTable";
-import { fetchLoginHistory } from "../features/auth/authSlice";
-import { useDispatch } from "react-redux";
+import React, { memo, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAllHistory } from '../features/Slices/AllHistorySlice';
+import DataTable from '../Component/DataTable';
 
-const History = () => {
+const HistoryAll = () => {
   const dispatch = useDispatch();
-  const { loginHistory, historyLoading } = useSelector((state) => state.auth);
-  console.log(loginHistory,'loginHistory')
 
-  const { token } = useSelector((state) => state.auth);
-  console.log(token,'token')
-  const isAuthenticated = !!token;
+  const { completeHistory, loading, error } = useSelector((state) => state.allhistory);
+
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    console.log('Authentication token:', token);
-    console.log('Is authenticated:', isAuthenticated);
-  }, [token, isAuthenticated]);
-
-   useEffect(() => {
-      if (status === "idle") {
-        dispatch(fetchLoginHistory());
-      }
-    }, [dispatch, status]);
+    dispatch(fetchAllHistory());
+  }, [dispatch]);
 
   const columns = [
     {
-      key: "timestamp",
-      title: "Login Time",
+      header: "S.No",
+      key: "serial",
+      title: "Serial No",
+      cell: (_, index) => index + 1,
+      width: 60,
+    },
+    {
+      header: "mode",
+      accessor: "mode",
+      key: "mode",
+      title: "mode",
+      cell: (row) => row?.mode || "N/A",
+      minWidth: 180,
+    },
+  
+    {
+      header: "changes",
+      accessor: "changes",
+      key: "changes",
+      title: "changes",
+      cell: (row) => row?.changes || "N/A",
+      minWidth: 180,
+    },
+  
+    {
+      header: "SDscription",
+      accessor: "description",
+      key: "description",
+      title: "Description",
+      cell: (row) => row?.description || "N/A",
+      minWidth: 180,
+    },
+    {
+      header: "ModifiedBy",
+      accessor: "modifiedBy",
+      key: "modifiedBy",
+      title: "ModifiedBy",
+      cell: (row) => row?.modifiedBy || "N/A",
+      minWidth: 180,
+    },
+    {
+      header: "programName",
+      accessor: "programName",
+      key: "programName",
+      title: "programName",
+      cell: (row) => row?.programName || "N/A",
+      minWidth: 180,
+    },
+  
+    {
+      header: 'Timestamp',
+      accessor: 'timestamp',
       sortable: true,
-      width: "150px",
-      render: (value) => new Date(value).toLocaleString(),
+      cell: (row) => new Date(row.timestamp).toLocaleString(),
     },
     {
-      key: "ipAddress",
-      title: "IP Address",
-      sortable: true,
-    },
-    {
-      key: "location",
-      title: "Location",
-      render: (value) => value || "Unknown",
-    },
-    {
-      key: "device",
-      title: "Device",
-      render: (device) => (
-        <div>
-          {device?.browser && <span>{device.browser}</span>}
-          {device?.os && (
-            <span className="text-muted ms-2">({device.os})</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "status",
-      title: "Status",
-      sortable: true,
-      render: (value) => (
-        <span className={`badge bg-${value === "success" ? "success" : "danger"}`}>
-          {value === "success" ? "Successful" : "Failed"}
-        </span>
-      ),
-    },
-    {
-      key: "userAgent",
-      title: "User Agent",
-      render: (value) => (
-        <small className="text-muted" style={{ fontSize: "0.8rem" }}>
-          {value}
-        </small>
-      ),
+      header: 'Error Description',
+      accessor: 'error_desc',
+      sortable: false,
     },
   ];
 
+  if (loading) {
+    return <div className="text-center py-4">Loading all history records...</div>;
+  }
 
-  const [searchTerm, setSearchTerm] = useState("");
+  if (error) {
+    return <div className="alert alert-danger">{error}</div>;
+  }
 
   return (
     <div className="container-fluid">
-    <div className="card shadow-sm">
-      <div className="card-header bg-white">
-        <h5 className="mb-0">Login History</h5>
-        <p className="text-muted mb-0">
-          Recent login activities for your account
-        </p>
-      </div>
-      <div className="card-body">
-        {historyLoading ? (
-          <div className="text-center py-5">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        ) : (
+      <div className="card shadow">
+        <div className="card-body">
           <DataTable
-            inboxData={loginHistory}
+            inboxData={completeHistory?.history || []}
             columns={columns}
             defaultItemsPerPage={10}
             itemsPerPageOptions={[5, 10, 25, 50]}
@@ -106,13 +102,17 @@ const History = () => {
             striped={true}
             hover={true}
             responsive={true}
-            emptyStateMessage="No login history found"
+            emptyStateMessage="No  history found"
+            hideToggle={true}
+            enableDownload={false}
+            enableFiltering={false}
+            enablePagination={true}
+            enableSorting={true}
           />
-        )}
+        </div>
       </div>
     </div>
-  </div>
   );
 };
 
-export default History;
+export default memo(HistoryAll);

@@ -345,7 +345,7 @@ const Designation = () => {
         inboxData={tableData}
         archiveData={[]}
         columns={columns}
-        onRowClick={handleRowClick}
+        // onRowClick={handleRowClick}
         defaultItemsPerPage={10}
         itemsPerPageOptions={[5, 10, 25, 50]}
         enableSearch={true}

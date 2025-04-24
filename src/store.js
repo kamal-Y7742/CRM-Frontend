@@ -10,6 +10,9 @@ import sectoralReducer from "../src/features/Slices/SectoralScopeSlice";
 import countryReducer from "../src/features/Slices/CountrySlice";
 import regionReducer from "../src/features/Slices/RegionSlice";
 import LeadReducer from "../src/features/Slices/LeadsSlice";
+import HistoryReducer from "../src/features/Slices/HistorySlice";
+import AllHistoryReducer from "../src/features/Slices/AllHistorySlice";
+import UserMasterReducer from "../src/features/Slices/UserMasterSlice";
 
 export const store = configureStore({
   reducer: {
@@ -24,5 +27,8 @@ export const store = configureStore({
     country: countryReducer,
     region: regionReducer,
     leads: LeadReducer,
+    history: HistoryReducer,
+    allhistory: AllHistoryReducer,
+    userMaster: UserMasterReducer,
   },
 });

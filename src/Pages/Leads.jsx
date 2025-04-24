@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Form, Button, InputGroup, Row, Col } from "react-bootstrap";
 import DataTable from "../Component/DataTable";
@@ -16,7 +16,7 @@ import {
 import { toast } from "react-toastify";
 import { FaEdit, FaTrash, FaArchive, FaTrashRestore } from "react-icons/fa";
 import ConfirmationModal from "../Component/ConfirmationModal";
-
+import EmailOffcanvas from "../Component/EmailOffcanvas";
 // RowActions component
 const RowActions = React.memo(
   ({ row, onEdit, onDelete, onArchive, onRestore, isArchive }) => {
@@ -39,7 +39,7 @@ const RowActions = React.memo(
     const handleArchive = useCallback(
       (e) => {
         e.stopPropagation();
-        onArchive(row.id, e);
+        onArchive(row.leadId, e);
       },
       [row, onArchive]
     );
@@ -47,7 +47,7 @@ const RowActions = React.memo(
     const handleRestore = useCallback(
       (e) => {
         e.stopPropagation();
-        onRestore(row.id, e);
+        onRestore(row.leadId, e);
       },
       [row, onRestore]
     );
@@ -562,7 +562,6 @@ const Leads = () => {
   } = useSelector((state) => state.leads);
 
   const [selectedId, setSelectedId] = useState(null);
-  console.log(selectedId,'selectedId')
   const [validated, setValidated] = useState(false);
   const [formData, setFormData] = useState({
     contactPerson: "",
@@ -592,13 +591,13 @@ const Leads = () => {
   const [errors, setErrors] = useState({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  console.log(itemToDelete,'itemToDelete')
   const [confirmAction, setConfirmAction] = useState(null);
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false);
   const [companySuggestions, setCompanySuggestions] = useState([]);
   const [showCompanySuggestions, setShowCompanySuggestions] = useState(false);
-
+  const [showEmailOffcanvas, setShowEmailOffcanvas] = useState(false);
+  const [selectedLead, setSelectedLead] = useState(null);
   // Set active view (inbox/archive) and fetch leads
   const setActiveView = (view) => {
     dispatch(setCurrentView(view));
@@ -609,6 +608,17 @@ const Leads = () => {
   useEffect(() => {
     dispatch(fetchLeads({ isArchived: currentView === 'archive' }));
   }, [dispatch, currentView]);
+
+  const handleEmailClick = useCallback((e, row) => {
+    e.stopPropagation(); // Prevent row click from happening
+    setSelectedLead(row);
+    setShowEmailOffcanvas(true);
+  }, []);
+
+  // Handle close email offcanvas
+  const handleCloseEmailOffcanvas = useCallback(() => {
+    setShowEmailOffcanvas(false);
+  }, []);
 
   // Update form when current lead changes
   useEffect(() => {
@@ -759,10 +769,10 @@ const Leads = () => {
                 leadData: formData,
               })
             ).unwrap();
-            toast.success("Lead updated successfully");
+            // toast.success("Lead updated successfully");
           } else {
             await dispatch(addLead(formData)).unwrap();
-            toast.success("Lead created successfully");
+            // toast.success("Lead created successfully");
           }
 
           setValidated(false);
@@ -815,15 +825,15 @@ const Leads = () => {
         switch (confirmAction) {
           case "delete":
             await dispatch(deleteLead(itemToDelete)).unwrap();
-            toast.success("Lead deleted successfully");
+            // toast.success("Lead deleted successfully");
             break;
           case "archive":
             await dispatch(archiveLead(itemToDelete)).unwrap();
-            toast.success("Lead archived successfully");
+            // toast.success("Lead archived successfully");
             break;
           case "restore":
             await dispatch(restoreLead(itemToDelete)).unwrap();
-            toast.success("Lead restored successfully");
+            // toast.success("Lead restored successfully");
             break;
           default:
             break;
@@ -888,7 +898,14 @@ const Leads = () => {
         accessor: "email",
         key: "email",
         title: "Email",
-        cell: (row) => row?.email || "N/A",
+        cell: (row) => (
+          <div 
+            className="email-cell cursor-pointer text-primary" 
+            onClick={(e) => handleEmailClick(e, row)}
+          >
+            {row?.email || "N/A"}
+          </div>
+        ),
         minWidth: 180,
       },
       {
@@ -1073,7 +1090,7 @@ const Leads = () => {
         key: "status",
         title: "Status",
         cell: (row) => {
-          const status = row?.status || "new";
+          const status = row?.status?.toLowerCase() || "new";
           let badgeClass = "badge ";
 
           switch (status) {
@@ -1151,8 +1168,8 @@ const Leads = () => {
             archiveData={leads.archive || []}
             inboxColumns={inboxColumns}
             columns={currentView === 'inbox' ? inboxColumns : archiveColumns}
-            archiveColumns={archiveColumns}
-            onRowClick={handleRowClick}
+            // archiveColumns={archiveColumns}
+            // onRowClick={handleRowClick}
             defaultItemsPerPage={10}
             itemsPerPageOptions={[5, 10, 25, 50]}
             enableSearch={true}
@@ -1218,10 +1235,17 @@ const Leads = () => {
             variant="danger"
             disabled={operationStatus === "loading"}
           />
+
+            {/* Email Offcanvas Component */}
+            <EmailOffcanvas 
+            show={showEmailOffcanvas} 
+            handleClose={handleCloseEmailOffcanvas} 
+            leadData={selectedLead}
+          />
         </div>
       </div>
     </>
   );
 };
 
-export default Leads;
+export default memo(Leads);

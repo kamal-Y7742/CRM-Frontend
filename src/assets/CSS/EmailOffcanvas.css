@@ -1,0 +1,208 @@
+/* EmailOffcanvas.css */
+
+.email-offcanvas {
+  max-width: 800px !important;
+  width: 50% !important;
+  right: 0;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  background-color: #fff;
+  z-index: 1045;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.email-offcanvas.show {
+  transform: translateX(0);
+}
+
+.email-offcanvas .offcanvas-header {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.email-offcanvas .nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.email-offcanvas .nav-link {
+  color: #6c757d;
+  border-bottom: 2px solid transparent;
+  padding: 0.75rem 1.5rem;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.email-offcanvas .nav-link.active {
+  color: #0d6efd;
+  background-color: transparent;
+  border-bottom: 2px solid #0d6efd;
+}
+
+.email-offcanvas .form-control:focus,
+.email-offcanvas .form-select:focus {
+  box-shadow: none;
+  border-color: #dee2e6;
+}
+
+.email-form-fields .form-group {
+  margin-bottom: 0.5rem;
+}
+
+.email-form-fields .form-control,
+.email-form-fields .form-select {
+  height: 32px;
+  padding: 0.25rem 0.5rem;
+}
+
+.email-toolbar button {
+  background: none;
+  border: none;
+  color: #6c757d;
+}
+
+.email-toolbar button:hover {
+  background-color: #f8f9fa;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.history-section .history-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.email-body .form-control {
+  min-height: 200px;
+  border: none;
+}
+
+.email-body .form-control:focus {
+  box-shadow: none;
+}
+
+/* Styling for the email recipient tags */
+.recipient-tag {
+  background-color: #f8f9fa;
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.recipient-tag svg {
+  margin-left: 0.25rem;
+  cursor: pointer;
+}
+
+/* Focus and History section styling */
+.focus-section, .history-section {
+  background-color: #ffffff;
+}
+
+.focus-section h6, .history-section h6 {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.focus-section .bg-light {
+  background-color: #f8f9fa !important;
+}
+
+/* Tabs styling */
+.tab-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-pane {
+  display: none;
+  height: 100%;
+}
+
+.tab-pane.active.show {
+  display: flex;
+  flex-direction: column;
+}
+
+.email-template-options {
+  background-color: #fff;
+}
+
+.email-template-options .btn {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Send button styling */
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.dropdown-toggle-split {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Form control sizes */
+.form-control {
+  font-size: 0.875rem;
+}
+
+/* Make sure recipient box has appropriate height */
+.recipient-tag + .form-control {
+  height: 28px;
+  min-width: 50px;
+}
+
+/* Button groups in the focus section */
+.focus-section .btn-light {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.focus-section .form-control {
+  font-size: 0.8rem;
+  height: 31px;
+}
+
+/* History section */
+.history-content p {
+  font-size: 0.8rem;
+  line-height: 1.2;
+}
+
+.history-content .small {
+  font-size: 0.75rem;
+}
+
+/* Lock button */
+.btn-light.border {
+  background-color: #fff;
+  border-color: #dee2e6 !important;
+}
+
+/* Add this to ensure proper layout when fixed positioning is applied */
+body {
+  overflow-x: hidden;
+}

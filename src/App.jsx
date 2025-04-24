@@ -20,9 +20,10 @@ import SectoralScope from './Pages/SectoralScope';
 import Currency from './Pages/Currency';
 import Region from './Pages/Region';
 import LoginHistory from './Pages/LoginHistory';
-import History from './Pages/History';
+import AuditHistory from './Pages/AuditHistory';
 import DataImport from './Pages/DataImport';
 import DebugEnv from './Component/DebugEnv';
+import History from './Pages/History';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useSelector } from 'react-redux';
@@ -116,6 +117,9 @@ function App() {
           <Route index element={<LoginHistory />} />
         </Route>
 
+        <Route path="/dashboard/reports/auditHistory" element={<ProtectedRoute element={<Layout />} />}>
+          <Route index element={<AuditHistory />} />
+        </Route>
         <Route path="/dashboard/reports/history" element={<ProtectedRoute element={<Layout />} />}>
           <Route index element={<History />} />
         </Route>

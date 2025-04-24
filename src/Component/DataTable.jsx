@@ -257,7 +257,7 @@ const DataTable = ({
 
   // Apply sorting, filtering, and search to data
   const getSortedAndFilteredData = () => {
-    let filteredData = [...data];
+    let filteredData = Array.isArray(data) ? [...data] : [];
 
     // Apply search
     if (localSearchTerm) {
