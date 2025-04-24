@@ -17,6 +17,7 @@ const LoginHistory = () => {
 
   const transformedData = loginHistoryResponse?.loginHistory?.map(item => ({
     id: item.id,
+    userId:item.userId,
     timestamp: item.loginTime,
     ipAddress: item.ipAddress || 'N/A',
     location: item.latitude && item.longitude 
@@ -30,6 +31,7 @@ const LoginHistory = () => {
   console.log(transformedData,'transformedData')
 
   const columns = React.useMemo(() => [
+    
 
     {
       header: "Created At",
@@ -70,6 +72,7 @@ const LoginHistory = () => {
         </span>
       ),
     },
+ 
     {
       key: "location",
       title: "Location",

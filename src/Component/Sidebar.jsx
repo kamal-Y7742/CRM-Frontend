@@ -265,12 +265,22 @@ function Sidebar({ isOpen, isMobile, toggleSidebar, openSettings }) {
                 </li>
                 <li>
                   <Link
-                    to="/dashboard/reports/history"
+                    to="/dashboard/reports/auditHistory"
                     className={`submenu-link ${isActive("/dashboard/reports/audit-history") ? "active" : ""}`}
                     onClick={handleLinkClick}
                   >
                     <i className="bi bi-file-earmark-text"></i>
                     <span>Audit History</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/dashboard/reports/history"
+                    className={`submenu-link ${isActive("/dashboard/reports/History") ? "active" : ""}`}
+                    onClick={handleLinkClick}
+                  >
+                    <i className="bi bi-file-earmark-text"></i>
+                    <span> History</span>
                   </Link>
                 </li>
               </ul>

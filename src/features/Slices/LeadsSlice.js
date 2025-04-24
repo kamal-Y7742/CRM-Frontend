@@ -9,7 +9,7 @@ export const fetchLeads = createAsyncThunk(
     try {
       const res = await API.get('/leads/get', { params });
       return {
-        leads: res.data.leads, // Just return the filtered leads from backend
+        leads: res.data.leads,
         totalRecords: res.data.totalRecords,
         totalPages: res.data.totalPages,
         currentPage: res.data.currentPage
@@ -26,7 +26,7 @@ export const addLead = createAsyncThunk(
     try {
       const res = await API.post('/leads/create', leadData);
       toast.success(res.data?.message || 'Lead added successfully');
-      return res.data;
+      return res.data.lead;
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to add lead');
       return rejectWithValue(err.response?.data);
@@ -40,7 +40,7 @@ export const updateLead = createAsyncThunk(
     try {
       const res = await API.post(`/leads/edit/${id}`, leadData);
       toast.success(res.data?.message || 'Lead updated successfully');
-      return { id, ...leadData };
+      return { leadId: id, ...res.data.lead };
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to update lead');
       return rejectWithValue(err.response?.data);
@@ -66,7 +66,7 @@ export const archiveLead = createAsyncThunk(
   'leads/archiveLead',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await API.post(`/leads/archive/${id}`);
+      const res = await API.post(`/leads/${id}/archive`);
       toast.success(res.data?.message || 'Lead archived successfully');
       return id;
     } catch (err) {
@@ -80,7 +80,7 @@ export const restoreLead = createAsyncThunk(
   'leads/restoreLead',
   async (id, { rejectWithValue }) => {
     try {
-      const res = await API.post(`/leads/restore/${id}`);
+      const res = await API.post(`/leads/${id}/unarchive`);
       toast.success(res.data?.message || 'Lead restored successfully');
       return id;
     } catch (err) {
@@ -89,8 +89,9 @@ export const restoreLead = createAsyncThunk(
     }
   }
 );
+
 const initialState = {
-  leads: [], // Now stores only the current view's leads
+  leads: [],
   total: 0,
   pages: 0,
   currentPage: 1,
@@ -100,7 +101,7 @@ const initialState = {
   currentLead: null,
   operationStatus: 'idle',
   operationError: null,
-  currentView: 'inbox', // Track current view
+  currentView: 'inbox',
 };
 
 const leadsSlice = createSlice({
@@ -117,6 +118,9 @@ const leadsSlice = createSlice({
     },
     setCurrentView: (state, action) => {
       state.currentView = action.payload;
+    },
+    setCurrentLead: (state, action) => {
+      state.currentLead = action.payload;
     }
   },
   extraReducers: (builder) => {
@@ -150,8 +154,10 @@ const leadsSlice = createSlice({
         state.isModalOpen = false;
         state.currentLead = null;
       })
-
-      
+      .addCase(addLead.rejected, (state, action) => {
+        state.operationStatus = 'failed';
+        state.operationError = action.payload;
+      })
       
       // Update Lead
       .addCase(updateLead.pending, (state) => {
@@ -159,16 +165,17 @@ const leadsSlice = createSlice({
       })
       .addCase(updateLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        const { id } = action.payload;
-        const index = state.leads.findIndex(lead => lead.id === id);
+        const { leadId } = action.payload;
+        const index = state.leads.findIndex(lead => lead.leadId === leadId);
         if (index !== -1) {
-          state.leads[index] = {
-            ...state.leads[index],
-            ...action.payload,
-          };
+          state.leads[index] = action.payload;
         }
         state.isModalOpen = false;
         state.currentLead = null;
+      })
+      .addCase(updateLead.rejected, (state, action) => {
+        state.operationStatus = 'failed';
+        state.operationError = action.payload;
       })
       
       // Delete Lead
@@ -177,8 +184,12 @@ const leadsSlice = createSlice({
       })
       .addCase(deleteLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        state.leads = state.leads.filter(lead => lead.id !== action.payload);
+        state.leads = state.leads.filter(lead => lead.leadId !== action.payload);
         state.total = Math.max(0, state.total - 1);
+      })
+      .addCase(deleteLead.rejected, (state, action) => {
+        state.operationStatus = 'failed';
+        state.operationError = action.payload;
       })
       
       // Archive Lead
@@ -187,10 +198,14 @@ const leadsSlice = createSlice({
       })
       .addCase(archiveLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        // Remove from current view (if in inbox)
         if (state.currentView === 'inbox') {
-          state.leads = state.leads.filter(lead => lead.id !== action.payload);
+          state.leads = state.leads.filter(lead => lead.leadId !== action.payload);
+          state.total = Math.max(0, state.total - 1);
         }
+      })
+      .addCase(archiveLead.rejected, (state, action) => {
+        state.operationStatus = 'failed';
+        state.operationError = action.payload;
       })
       
       // Restore Lead
@@ -199,13 +214,17 @@ const leadsSlice = createSlice({
       })
       .addCase(restoreLead.fulfilled, (state, action) => {
         state.operationStatus = 'idle';
-        // Remove from current view (if in archive)
         if (state.currentView === 'archive') {
-          state.leads = state.leads.filter(lead => lead.id !== action.payload);
+          state.leads = state.leads.filter(lead => lead.leadId !== action.payload);
+          state.total = Math.max(0, state.total - 1);
         }
+      })
+      .addCase(restoreLead.rejected, (state, action) => {
+        state.operationStatus = 'failed';
+        state.operationError = action.payload;
       });
   }
 });
 
-export const { openLeadModal, closeLeadModal, setCurrentView } = leadsSlice.actions;
+export const { openLeadModal, closeLeadModal, setCurrentView, setCurrentLead } = leadsSlice.actions;
 export default leadsSlice.reducer;
